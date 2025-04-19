@@ -3,14 +3,12 @@ import { runQuery } from '../config/db';
 import { globalConstants } from '../utils/globalConstants';
 import { processRow, processRows } from '../utils/processRow';
 import { parseQueryParams } from '../utils/parseQueryParams';
+import { tableName } from '../utils/tableName';
 
 // Obtener todos los registros de una tabla
 
 export const getAll = async (req: Request, res: Response): Promise<void> => {
-  let { table } = req.params;
-  if (!table && globalConstants.table !== "") {
-    table = globalConstants.table;
-  }
+  const table = tableName(req);
 
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
@@ -27,7 +25,7 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
 
     const params = req.params as Record<string, any>;
     const queryParams = parseQueryParams(params);
-    const processed = processRows(table, results,queryParams);
+    const processed = processRows(table, results, queryParams);
     console.log(params);
 
     res.json({
@@ -44,10 +42,9 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
 
 // Obtener un registro específico por ID
 export const getById = async (req: Request, res: Response): Promise<void> => {
-  let { table, id } = req.params;
-  if (!table && globalConstants.table !== "") {
-    table = globalConstants.table
-  }
+  let { id } = req.params;
+  req.query
+  const table = tableName(req);
   try {
     const result = await runQuery(`SELECT * FROM \`${table}\` WHERE id = ?`, [id]);
     if (result.length === 0) {
@@ -62,10 +59,7 @@ export const getById = async (req: Request, res: Response): Promise<void> => {
 
 // Insertar un nuevo registro
 export const insert = async (req: Request, res: Response): Promise<void> => {
-  let { table } = req.params;
-  if (!table && globalConstants.table !== "") {
-    table = globalConstants.table
-  }
+  const table = tableName(req);
   const data = req.body;
 
   const columns = Object.keys(data).join(',');
@@ -85,10 +79,8 @@ export const insert = async (req: Request, res: Response): Promise<void> => {
 
 // Actualizar un registro existente
 export const update = async (req: Request, res: Response): Promise<void> => {
-  let { table, id } = req.params;
-  if (!table && globalConstants.table !== "") {
-    table = globalConstants.table
-  }
+  let { id } = req.params;
+  const table = tableName(req);
   const data = req.body;
 
   const updates = Object.keys(data)
@@ -113,10 +105,8 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 
 // Eliminar un registro
 export const remove = async (req: Request, res: Response): Promise<void> => {
-  let { table, id } = req.params;
-  if (!table && globalConstants.table !== "") {
-    table = globalConstants.table
-  }
+  let { id } = req.params;
+  const table = tableName(req);
 
   try {
     const result = await runQuery(`DELETE FROM \`${table}\` WHERE id = ?`, [id]);

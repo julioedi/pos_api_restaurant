@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { NextFunction, Router } from 'express';
 import { register, login } from '../controllers/user.controller';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { getAll, getById } from '../controllers/dynamic.controller';

@@ -6,7 +6,7 @@ const JWT_SECRET = process.env?.JWT_SECRET ?? 'mi_secreto_jwt'; // Cambia esto p
 
 // Función para generar un JWT
 export const generateJWT = (userId: number): string => {
-  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: '1h' }); // El token expira en 1 hora
+  return jwt.sign({ ID: userId }, JWT_SECRET, { expiresIn: '1h' }); // El token expira en 1 hora
 };
 
 // Función para verificar un JWT

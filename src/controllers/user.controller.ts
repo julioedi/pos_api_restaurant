@@ -145,7 +145,9 @@ interface LoginRequestBody {
 
 // Login de usuario
 export const login = async (req: Request<{}, {}, LoginRequestBody>, res: Response): Promise<void> => {
-  let { slug, password } = req.body;
+  // let { slug, password } = req.body;
+  let slug = req?.body?.slug ?? undefined;
+  let password = req?.body?.password ?? undefined;
   if (!slug && typeof req.query?.slug == "string") {
     slug = req.query.slug;
   }

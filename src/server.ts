@@ -41,6 +41,7 @@ const port = process.env.PORT || 3000;
 
   const isDev: boolean = (!process.env.NODE_ENV || process.env.NODE_ENV === 'development');
 
+  //delete this one on production 
   if (isDev) {
     const users = await runQuery("SELECT * from `users`");
     if (users.length == 0) {
@@ -54,6 +55,7 @@ const port = process.env.PORT || 3000;
       console.log(user);
     }
   }
+  //
     server.listen(port, () => {
       console.log(`Servidor corriendo en http://localhost:${port}`);
     });
