@@ -1,13 +1,42 @@
 import { Request, Response } from 'express';
 import { runQuery } from '../config/db';
+import { globalConstants } from '../utils/globalConstants';
+import { processRow, processRows } from '../utils/processRow';
+import { parseQueryParams } from '../utils/parseQueryParams';
 
 // Obtener todos los registros de una tabla
+
 export const getAll = async (req: Request, res: Response): Promise<void> => {
-  const { table } = req.params;
+  let { table } = req.params;
+  if (!table && globalConstants.table !== "") {
+    table = globalConstants.table;
+  }
+
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const offset = (page - 1) * limit;
 
   try {
-    const results = await runQuery(`SELECT * FROM \`${table}\``);
-    res.json(results);
+    // Total de registros
+    const countResult = await runQuery(`SELECT COUNT(*) as total FROM \`${table}\``);
+    const total = countResult?.[0]?.total ?? 0;
+
+    // Registros paginados
+    const query = `SELECT * FROM \`${table}\` ORDER BY ID DESC LIMIT ? OFFSET ?`;
+    const results = await runQuery(query, [limit, offset]);
+
+    const params = req.params as Record<string, any>;
+    const queryParams = parseQueryParams(params);
+    const processed = processRows(table, results,queryParams);
+    console.log(params);
+
+    res.json({
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      limit,
+      data: processed,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener registros', error });
   }
@@ -15,14 +44,16 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
 
 // Obtener un registro específico por ID
 export const getById = async (req: Request, res: Response): Promise<void> => {
-  const { table, id } = req.params;
-
+  let { table, id } = req.params;
+  if (!table && globalConstants.table !== "") {
+    table = globalConstants.table
+  }
   try {
     const result = await runQuery(`SELECT * FROM \`${table}\` WHERE id = ?`, [id]);
     if (result.length === 0) {
       res.status(404).json({ message: 'Registro no encontrado' });
     } else {
-      res.json(result[0]);
+      res.json(processRow(table, result[0]));
     }
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener el registro', error });
@@ -31,7 +62,10 @@ export const getById = async (req: Request, res: Response): Promise<void> => {
 
 // Insertar un nuevo registro
 export const insert = async (req: Request, res: Response): Promise<void> => {
-  const { table } = req.params;
+  let { table } = req.params;
+  if (!table && globalConstants.table !== "") {
+    table = globalConstants.table
+  }
   const data = req.body;
 
   const columns = Object.keys(data).join(',');
@@ -51,7 +85,10 @@ export const insert = async (req: Request, res: Response): Promise<void> => {
 
 // Actualizar un registro existente
 export const update = async (req: Request, res: Response): Promise<void> => {
-  const { table, id } = req.params;
+  let { table, id } = req.params;
+  if (!table && globalConstants.table !== "") {
+    table = globalConstants.table
+  }
   const data = req.body;
 
   const updates = Object.keys(data)
@@ -76,7 +113,10 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 
 // Eliminar un registro
 export const remove = async (req: Request, res: Response): Promise<void> => {
-  const { table, id } = req.params;
+  let { table, id } = req.params;
+  if (!table && globalConstants.table !== "") {
+    table = globalConstants.table
+  }
 
   try {
     const result = await runQuery(`DELETE FROM \`${table}\` WHERE id = ?`, [id]);

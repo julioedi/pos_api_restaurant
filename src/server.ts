@@ -1,40 +1,60 @@
-import express from 'express';
 import http from 'http';
-import socketIo from 'socket.io';
-import userRoutes from './routes/user.routes';
-import dynamicRoutes from './routes/dynamic.routes';
+import { Server as SocketIOServer } from 'socket.io';
+import app from './app'; // Importamos la configuración de la aplicación
+import initTables from './config/setup/initTables';
+import dotenv from 'dotenv';
+import { checkDb, runQuery, baseData } from './config/db';
+import { hashPassword } from './utils/auth';
+import { RegisterUser } from './controllers/user.controller';
+dotenv.config();
 
-const app = express();
-const server = http.createServer(app); // Crear el servidor HTTP
-const io = new socketIo.Server(server, {
-  cors: {
-    origin: "*", // Permite conexiones de cualquier origen, ajusta según tus necesidades
-    methods: ["GET", "POST"]
-  }
-});
 
-app.use(express.json());
+// Crear servidor HTTP a partir de la aplicación Express
+const server = http.createServer(app);
 
-// Rutas
-app.use('/api/users', userRoutes);
-app.use('/api', dynamicRoutes);
+// Crear instancia de Socket.IO y asociarlo al servidor
+const io = new SocketIOServer(server);
 
-// WebSocket: Enviar un mensaje a todos los clientes conectados cuando haya una inserción
+// Configurar WebSockets
 io.on('connection', (socket) => {
-  console.log('Nuevo cliente conectado');
+  console.log('A user connected');
 
-  // Ejemplo de emitir un mensaje cuando se recibe un evento
-  socket.on('new-record', (message: string) => {
-    io.emit('new-record', message); // Enviar a todos los clientes conectados
-    console.log('Mensaje recibido y emitido a todos los clientes:', message);
-  });
+  // Ejemplo de emitir un evento WebSocket
+  socket.emit('message', 'Welcome to the WebSocket server');
 
   socket.on('disconnect', () => {
-    console.log('Cliente desconectado');
+    console.log('A user disconnected');
   });
 });
 
-// Iniciar el servidor en el puerto 3000
-server.listen(3000, () => {
-  console.log('Servidor corriendo en http://localhost:3000');
-});
+// Puerto de ejecución
+const port = process.env.PORT || 3000;
+(async () => {
+  //init the db direct from start
+  await checkDb();
+
+  //set de existing tables
+  const tables: Record<string, string>[] = await runQuery("SELECT name FROM sqlite_master WHERE type='table';");
+  baseData.existTables = tables.filter(item => item.name != "sqlite_sequence").map(item => item.name);
+
+  await initTables();
+
+  const isDev: boolean = (!process.env.NODE_ENV || process.env.NODE_ENV === 'development');
+
+  if (isDev) {
+    const users = await runQuery("SELECT * from `users`");
+    if (users.length == 0) {
+      const user = await RegisterUser({
+        slug:"julio",
+        title:"Julio",
+        password:"@Test123456",
+        email:"info@julioedi.com",
+        role:[0]
+      })
+      console.log(user);
+    }
+  }
+    server.listen(port, () => {
+      console.log(`Servidor corriendo en http://localhost:${port}`);
+    });
+})();

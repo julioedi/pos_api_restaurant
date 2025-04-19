@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 // Secreto para firmar el JWT (puedes guardarlo en un archivo .env)
-const JWT_SECRET = 'mi_secreto_jwt'; // Cambia esto por un valor más seguro
+const JWT_SECRET = process.env?.JWT_SECRET ?? 'mi_secreto_jwt'; // Cambia esto por un valor más seguro
 
 // Función para generar un JWT
 export const generateJWT = (userId: number): string => {

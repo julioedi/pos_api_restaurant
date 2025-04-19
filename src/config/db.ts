@@ -1,30 +1,64 @@
+// src/config/db.ts
 import sqlite3 from 'sqlite3';
+import { open, Database } from 'sqlite';
+import { TableSchema } from '@/types/tableSchema';
 
-// Usamos la base de datos de SQLite de forma asincrónica
-export const db = new sqlite3.Database('./database.db');
+// Define baseData with the correct Database type
+const baseData: {
+  db: Database<sqlite3.Database, sqlite3.Statement> | undefined,
+  inited: boolean,
+  existTables:Array<string>,
+  tablesData:Record<string, TableSchema>
+} = {
+  inited: false,
+  db: undefined,
+  existTables:[],
+  tablesData:{}
+};
 
-// Función para realizar una consulta de tipo SELECT
+
+
+export declare interface tableDefaultCols{
+  ID?:number,
+  title?:string,
+  slug?:string,
+  created_by?:number,
+  updated_by?:number,
+  status?:number,
+  featured_id?:number,
+}
+
+export {baseData}
+
+
+
+
+const checkDb = async () => {
+  if (baseData.inited) {
+    return;
+  }
+  baseData.db = await open({
+    filename: './database.db',
+    driver: sqlite3.Database,
+  })
+  baseData.inited = true;
+}
+
+export {checkDb}
+
+
 export const runQuery = async (query: string, params: any[] = []): Promise<any> => {
-  return new Promise<any>((resolve, reject) => {
-    db.all(query, params, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows);
-      }
-    });
-  });
+  if (!baseData.db) {
+    await checkDb();
+  }
+  return baseData.db?.all(query, params); // Usamos `database.all` para obtener los resultados
 };
 
-// Función para realizar una consulta de tipo INSERT, UPDATE, DELETE
 export const runUpdate = async (query: string, params: any[] = []): Promise<any> => {
-  return new Promise<any>((resolve, reject) => {
-    db.run(query, params, function (err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(this);
-      }
-    });
-  });
+  if (!baseData.db) {
+    await checkDb();
+  }
+  return baseData.db?.run(query, params); // Usamos `database.run` para insertar/actualizar/eliminar
 };
+const {db} = baseData;
+export default db;

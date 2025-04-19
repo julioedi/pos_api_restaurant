@@ -1,16 +1,20 @@
 {
-    "compilerOptions": {
-      "target": "ES2020",                          // Buen balance entre funcionalidades modernas y compatibilidad
-      "module": "CommonJS",                        // Usa CommonJS para Node
-      "rootDir": "src",                            // Carpeta fuente
-      "outDir": "dist",                            // Carpeta de salida para JS compilado
-      "esModuleInterop": true,                     // Permite importaciones tipo ES en módulos CommonJS
-      "forceConsistentCasingInFileNames": true,    // Evita problemas en sistemas con case-sensitive
-      "strict": true,                              // Habilita comprobaciones estrictas
-      "skipLibCheck": true,                        // Evita chequear tipos de dependencias (más rápido)
-      "resolveJsonModule": true                    // Permite importar archivos .json
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",  // Base URL set to "src"
+    "paths": {
+      "@*": ["src/*"]  // This maps any path starting with @ to src/*
     },
-    "include": ["src"],
-    "exclude": ["node_modules", "dist"]
-  }
-  
+    "resolveJsonModule": true,
+    "moduleResolution": "node"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
