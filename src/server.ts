@@ -7,25 +7,32 @@ import { checkDb, runQuery, baseData } from './config/db';
 import { hashPassword } from './utils/auth';
 import { RegisterUser } from './controllers/user.controller';
 dotenv.config();
+import { ioSocket,server } from './sockets/socket';
 
 
 // Crear servidor HTTP a partir de la aplicación Express
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
 // Crear instancia de Socket.IO y asociarlo al servidor
-const io = new SocketIOServer(server);
+// const io = new SocketIOServer(server, {
+//   path: '/ws',
+//   cors: {
+//     origin: '*', // Ajusta esto según tu necesidad de seguridad
+//     methods: ['GET', 'POST', "DELETE", "UPDATE"]
+//   }
+// });
 
-// Configurar WebSockets
-io.on('connection', (socket) => {
-  console.log('A user connected');
+// // Configurar WebSockets
+// io.on('connection', (socket) => {
+//   console.log('A user connected');
 
-  // Ejemplo de emitir un evento WebSocket
-  socket.emit('message', 'Welcome to the WebSocket server');
+//   // Ejemplo de emitir un evento WebSocket
+//   socket.emit('message', 'Welcome to the WebSocket server');
 
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
-  });
-});
+//   socket.on('disconnect', () => {
+//     console.log('A user disconnected');
+//   });
+// });
 
 // Puerto de ejecución
 const port = process.env.PORT || 3000;
@@ -46,17 +53,16 @@ const port = process.env.PORT || 3000;
     const users = await runQuery("SELECT * from `users`");
     if (users.length == 0) {
       const user = await RegisterUser({
-        slug:"julio",
-        title:"Julio",
-        password:"@Test123456",
-        email:"info@julioedi.com",
-        role:[0]
+        slug: "julio",
+        title: "Julio",
+        password: "@Test123456",
+        email: "info@julioedi.com",
+        role: [0]
       })
-      console.log(user);
     }
   }
   //
-    server.listen(port, () => {
-      console.log(`Servidor corriendo en http://localhost:${port}`);
-    });
+  server.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
+  });
 })();

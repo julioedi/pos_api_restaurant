@@ -37,7 +37,6 @@ export function processRow(table: string, row: Row,extras:RowExtras = {} ): Row 
     include_fields = exclude.split(",");
   }
   
-  console.log({include_fields,exclude});
 
   const preData = Object.keys(row);
   for (let i = 0; i < preData.length; i++) {
@@ -76,7 +75,7 @@ export function processRow(table: string, row: Row,extras:RowExtras = {} ): Row 
       const key = include_fields[i];
       
       //if field exists will aded to final row
-      if (processed[key]) {
+      if (key in processed) {
         preRow[key] = processed[key];
         fields_in_row++;
       }
@@ -87,7 +86,6 @@ export function processRow(table: string, row: Row,extras:RowExtras = {} ): Row 
     Object.assign(preRow,processed);
 
     if (exclude.length > 0) {
-      console.log(exclude)
       for (let i = 0; i < exclude.length; i++) {
         const key = exclude[i];
         
@@ -97,6 +95,8 @@ export function processRow(table: string, row: Row,extras:RowExtras = {} ): Row 
         }
       }
     }
+  }else{
+    return preRow;
   }
 
   return processed;

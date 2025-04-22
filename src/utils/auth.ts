@@ -3,11 +3,13 @@ import bcrypt from 'bcryptjs';
 
 // Secreto para firmar el JWT (puedes guardarlo en un archivo .env)
 const JWT_SECRET = process.env?.JWT_SECRET ?? 'mi_secreto_jwt'; // Cambia esto por un valor más seguro
+const timer =  (process.env?.TOKEN_TIME ?? 30).toString();
+const TOKEN_TIME = !Number.isNaN(timer) ? Number.parseInt(timer) : 30;
 
 // Función para generar un JWT
 export const generateJWT = (userId: number): string => {
-  return jwt.sign({ ID: userId }, JWT_SECRET, { expiresIn: '1h' }); // El token expira en 1 hora
-};
+  return jwt.sign({ ID: userId }, JWT_SECRET, { expiresIn: TOKEN_TIME * 86400 }); // (num of days) * (total days)
+};  
 
 // Función para verificar un JWT
 export const verifyJWT = (token: string): any => {

@@ -18,13 +18,13 @@ const alterTableColumns = async (tableName: string, preData: TableSchema):Promis
 
     const type = dbOptionals[typeKey] || 'TEXT';  // Default to TEXT if no match is found
 
-    console.log(`Column '${col}' does not exist in table '${tableName}', adding it...`);
+    // console.log(`Column '${col}' does not exist in table '${tableName}', adding it...`);
     
     const alterQuery = `ALTER TABLE ${tableName} ADD COLUMN ${col} ${type};`;
     try {
       await runQuery(alterQuery);  // Add the column to the table
     } catch (err) {
-      console.error(`Error adding column '${col}' to table '${tableName}':`, err);
+      // console.error(`Error adding column '${col}' to table '${tableName}':`, err);
       return 2;  // Return failure
     }
   }
@@ -87,7 +87,7 @@ export async function createTable(tableName: string, preData: TableSchema): Prom
     return 1;  // Return success
   } catch (err) {
     console.log({sql})
-    console.error(`Error creating table '${tableName}':`, err);
+    // console.error(`Error creating table '${tableName}':`, err);
     return 2;  // Return failure
   }
 }

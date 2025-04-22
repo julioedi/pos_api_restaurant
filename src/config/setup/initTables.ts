@@ -12,11 +12,11 @@ const initTables = async() => {
     const result = await createTable(tableName, schema as TableSchema);
 
     if (result === 1) {
-      console.log(`🟢 Tabla '${tableName}' creada correctamente.`);
+      // console.log(`🟢 Tabla '${tableName}' creada correctamente.`);
     } else if (result === 0) {
-      console.log(`🟡 Tabla '${tableName}' ya existe.`);
+      // console.log(`🟡 Tabla '${tableName}' ya existe.`);
     } else {
-      console.error(`🔴 Error al crear la tabla '${tableName}'.`);
+      // console.error(`🔴 Error al crear la tabla '${tableName}'.`);
     }
   }
 }

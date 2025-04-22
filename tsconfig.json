@@ -13,7 +13,10 @@
       "@*": ["src/*"]  // This maps any path starting with @ to src/*
     },
     "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "typeRoots": [
+      "./src/types",
+    ]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

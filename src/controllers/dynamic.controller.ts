@@ -26,7 +26,6 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
     const params = req.params as Record<string, any>;
     const queryParams = parseQueryParams(params);
     const processed = processRows(table, results, queryParams);
-    console.log(params);
 
     res.json({
       total,

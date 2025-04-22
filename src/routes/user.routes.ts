@@ -3,6 +3,7 @@ import { register, login } from '../controllers/user.controller';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { getAll, getById } from '../controllers/dynamic.controller';
 
+
 const router = Router();
 
 // Ruta para registrar un nuevo usuario

@@ -2,9 +2,9 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './routes/user.routes';
-import { globalConstants } from './utils/globalConstants';
 import { endpointsPreview } from './utils/endpointsPreview';
 import cookieParser from 'cookie-parser';
+import { emitToUser } from './sockets/emitToUser';
 
 const app = express();
 
@@ -49,10 +49,19 @@ app.use((req, res, next) => {
     Object.assign(req, {
         queryObject: queryToJSON(query)
     })
+    res.setHeader("Content-Security-Policy", "default-src 'none'; connect-src 'self' ws:;");
     next();
 
 });
-app.use(cors());
+app.use(express.json());
+app.use(cors({
+    origin: (origin, callback) => {
+        // allow requests with no origin like curl/postman or same-origin
+        if (!origin) return callback(null, true);
+        return callback(null, true); // allow all origins explicitly
+    },
+    credentials: true,
+}));
 
 // Use the cookie-parser middleware
 app.use(cookieParser());
@@ -68,6 +77,14 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.get("/api/", (req: Request, res: Response): void => {
     res.json(endpointsPreview)
+});
+
+app.get("/notification/:id", (req: Request, res: Response): void => {
+    if (req.params.id == "1") {
+        emitToUser(1,"notifications:new",{total:1});
+    }
+        
+    res.json([])
 });
 
 app.use('/api/users', (req: Request, res: any, next: any) => {
